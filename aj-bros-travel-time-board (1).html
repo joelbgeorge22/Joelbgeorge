@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AJ & Bros — Travel Time Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-900: #0B3B75;
+    --blue-800: #0F4C93;
+    --blue-700: #1662B5;
+    --blue-500: #3B8AD9;
+    --blue-300: #8EC3F0;
+    --blue-100: #E6F2FC;
+    --sky: #F5FAFF;
+    --white: #FFFFFF;
+    --ink: #16324F;
+    --muted: #6B85A0;
+    --line: #DCEAFA;
+    --radius: 12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background: linear-gradient(160deg, var(--blue-100) 0%, var(--white) 55%);
+    padding: 44px 20px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute;
+    right:-80px; top:-100px;
+    width:320px; height:320px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(59,138,217,0.18) 0%, rgba(59,138,217,0) 70%);
+  }
+  .hero-inner{ max-width: 880px; margin: 0 auto; position: relative; z-index: 1; }
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--blue-700);
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+  h1{
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(28px, 6vw, 42px);
+    line-height: 1.08;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+    background: linear-gradient(100deg, var(--blue-900) 0%, var(--blue-500) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p{
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0;
+  }
+
+  /* ---------- BOARD CARD ---------- */
+  .board{
+    background: var(--white);
+    border-radius: var(--radius);
+    margin-top: -18px;
+    position: relative;
+    z-index: 2;
+    padding: 22px;
+    box-shadow: 0 18px 40px rgba(11,59,117,0.10);
+    border: 1px solid var(--line);
+  }
+  .board-label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue-700);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .selectors{
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: end;
+  }
+  @media (max-width: 480px){
+    .selectors{ grid-template-columns: 1fr; }
+    .arrow-col{ display:none; }
+  }
+  .field label{
+    display:block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  select{
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--blue-100);
+    color: var(--blue-900);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 34px 11px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%231662B5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+  }
+  select:focus{ outline: 2px solid var(--blue-500); outline-offset: 1px; }
+  .arrow-col{
+    display:flex; align-items:center; justify-content:center;
+    color: var(--blue-500);
+    font-size: 18px;
+    padding-bottom: 11px;
+  }
+
+  /* ---------- SPLIT FLAP RESULT ---------- */
+  .result{ margin-top: 20px; padding-top: 18px; border-top: 1px dashed var(--line); }
+  .flap-row{ display:flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .flap{
+    background: linear-gradient(180deg, var(--blue-800) 0%, var(--blue-900) 100%);
+    border-radius: 5px;
+    padding: 10px 4px;
+    min-width: 30px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--white);
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
+    animation: flapIn 0.4s ease both;
+  }
+  @media (prefers-reduced-motion: reduce){ .flap{ animation: none; } }
+  @keyframes flapIn{
+    0%{ transform: rotateX(90deg); opacity: 0; }
+    60%{ transform: rotateX(-8deg); opacity: 1; }
+    100%{ transform: rotateX(0deg); }
+  }
+  .route-line{
+    display:flex; align-items:center; gap:8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .dot{ width:6px; height:6px; border-radius:50%; background: var(--blue-500); flex-shrink:0; }
+  .dash{ flex:1; height:1px; background: repeating-linear-gradient(90deg, var(--blue-300) 0 4px, transparent 4px 8px); }
+
+  .client-line{
+    background: var(--blue-100);
+    border-left: 3px solid var(--blue-500);
+    padding: 12px 14px;
+    border-radius: 4px;
+    font-style: italic;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--blue-900);
+  }
+
+  /* ---------- MAP ---------- */
+  section{ margin-top: 40px; }
+  .section-label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  h2{
+    font-family: 'Fraunces', serif;
+    font-size: 21px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--blue-900);
+  }
+  .map-note{ font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+  .map-card{
+    background: linear-gradient(165deg, var(--blue-100) 0%, var(--sky) 100%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px;
+    box-shadow: 0 12px 30px rgba(11,59,117,0.08);
+  }
+  .map-card svg{ width: 100%; height: auto; display:block; }
+  .pin-label{
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5px;
+    font-weight: 600;
+    fill: var(--muted);
+  }
+  .pin-label.active{ fill: var(--blue-900); font-weight: 700; }
+  .pin{ fill: var(--blue-300); stroke: var(--white); stroke-width: 1.5; transition: r 0.2s ease; }
+  .pin.active{ fill: var(--blue-700); }
+  .pin.active.endpoint{ fill: var(--blue-900); }
+  .route-path{
+    fill: none;
+    stroke: var(--blue-700);
+    stroke-width: 2.2;
+    stroke-dasharray: 5 5;
+    stroke-linecap: round;
+    animation: dash 1.4s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .route-path{ animation: none; } }
+  @keyframes dash{ to{ stroke-dashoffset: -20; } }
+
+  /* key destinations */
+  .journey{ display:flex; align-items:center; flex-wrap: wrap; gap: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; }
+  .journey .stop{ background: var(--blue-100); border: 1px solid var(--line); padding: 8px 12px; border-radius: 20px; font-weight: 600; color: var(--blue-900); }
+  .journey .stop.start,.journey .stop.end{ background: linear-gradient(100deg, var(--blue-800), var(--blue-500)); color: #fff; border-color: transparent; }
+  .journey .sep{ color: var(--blue-500); font-size: 14px; }
+
+  /* highways */
+  .hw-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 480px){ .hw-grid{ grid-template-columns: 1fr; } }
+  .hw-card{ background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display:flex; align-items:center; gap: 12px; }
+  .hw-code{ font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; color: var(--white); background: linear-gradient(100deg, var(--blue-800), var(--blue-500)); padding: 4px 8px; border-radius: 4px; flex-shrink: 0; }
+  .hw-name{ font-size: 13.5px; color: var(--ink); }
+
+  /* client rule */
+  .rule-card{ background: linear-gradient(120deg, var(--blue-900) 0%, var(--blue-700) 100%); color: #fff; border-radius: var(--radius); padding: 22px; }
+  .rule-card .never{ font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; margin: 0 0 10px; }
+  .rule-card .say-label{ font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-300); margin-bottom: 8px; }
+  .rule-card blockquote{ margin: 0; font-style: italic; font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.92); border-left: 3px solid var(--blue-300); padding-left: 14px; }
+
+  footer{ margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">AJ &amp; Bros World Wide Real Estate</p>
+      <h1>Travel Time Board</h1>
+      <p>Pick a route to see the approximate drive time to share with a client. Ranges only — always confirm live traffic before quoting an exact figure.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="board">
+      <div class="board-label">Route Lookup</div>
+      <div class="selectors">
+        <div class="field">
+          <label for="from">From</label>
+          <select id="from"></select>
+        </div>
+        <div class="arrow-col">→</div>
+        <div class="field">
+          <label for="to">To</label>
+          <select id="to"></select>
+        </div>
+      </div>
+
+      <div class="result" id="result">
+        <div class="route-line">
+          <span class="dot"></span><span class="dash"></span><span id="routeText">—</span><span class="dash"></span><span class="dot"></span>
+        </div>
+        <div class="flap-row" id="flapRow"></div>
+        <div class="client-line" id="clientLine"></div>
+      </div>
+    </div>
+
+    <section>
+      <div class="section-label">Visual</div>
+      <h2>Route Map</h2>
+      <p class="map-note">Illustrative layout, not to scale — for orientation only. Selected route highlighted below.</p>
+      <div class="map-card">
+        <svg id="mapSvg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">Memory Aid</div>
+      <h2>The 5 Key Destinations</h2>
+      <div class="journey">
+        <span class="stop start">DXB Airport</span><span class="sep">→</span>
+        <span class="stop">Downtown</span><span class="sep">→</span>
+        <span class="stop">Business Bay</span><span class="sep">→</span>
+        <span class="stop">Marina / JBR</span><span class="sep">→</span>
+        <span class="stop end">DWC Airport</span>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">Reference</div>
+      <h2>Major Highways</h2>
+      <div class="hw-grid">
+        <div class="hw-card"><span class="hw-code">E11</span><span class="hw-name">Sheikh Zayed Road</span></div>
+        <div class="hw-card"><span class="hw-code">E66</span><span class="hw-name">Dubai–Al Ain Road</span></div>
+        <div class="hw-card"><span class="hw-code">E311</span><span class="hw-name">Sheikh Mohammed Bin Zayed Road</span></div>
+        <div class="hw-card"><span class="hw-code">E611</span><span class="hw-name">Emirates Road</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">Always</div>
+      <div class="rule-card">
+        <p class="never">Never promise an exact travel time.</p>
+        <p class="say-label">Say</p>
+        <blockquote>"Approximately 25–30 minutes in normal traffic. During peak hours, it may take longer."</blockquote>
+      </div>
+    </section>
+
+    <footer>
+      This board is a learning reference built from approximate ranges. Actual client-facing timings should always be checked live on Google Maps or RTA before sharing.
+    </footer>
+  </div>
+
+<script>
+  const TO_LOCATIONS = ["DXB", "Downtown", "Business Bay", "Marina", "JVC", "DWC"];
+
+  const MATRIX = {
+    "DSO":                 ["20–30m","20–25m","20–25m","30–40m","25–35m","35–45m"],
+    "JVC":                 ["25–35m","25–30m","20–30m","15–25m","—","30–40m"],
+    "Dubai Hills":         ["25–35m","20–25m","20–25m","20–30m","15–20m","30–40m"],
+    "Business Bay":        ["15–25m","5–10m","—","20–30m","20–30m","35–45m"],
+    "Downtown":            ["15–25m","—","5–10m","20–30m","25–35m","35–45m"],
+    "Dubai Marina":        ["25–35m","20–30m","20–30m","—","15–25m","30–40m"],
+    "JBR":                 ["30–40m","25–35m","25–35m","5–10m","15–25m","30–40m"],
+    "Palm Jumeirah":       ["25–35m","20–30m","20–30m","10–15m","20–30m","30–40m"],
+    "Dubai South":         ["35–45m","35–45m","35–45m","30–40m","25–35m","10–15m"],
+    "DIP":                 ["30–40m","30–40m","30–40m","25–35m","25–35m","15–25m"],
+    "Al Furjan":           ["30–40m","30–40m","25–35m","20–30m","20–30m","20–30m"],
+    "MBR City":            ["15–25m","10–20m","10–20m","25–35m","25–35m","35–45m"],
+    "International City":  ["15–25m","20–30m","20–30m","35–45m","30–40m","45–55m"],
+    "Al Jaddaf":           ["10–20m","10–15m","10–20m","25–35m","25–35m","40–50m"]
+  };
+
+  // Illustrative relative positions on a 400x300 canvas (not to scale)
+  const COORDS = {
+    "DSO":                { x: 300, y: 95,  label: "DSO" },
+    "JVC":                { x: 150, y: 175, label: "JVC" },
+    "Dubai Hills":        { x: 175, y: 118, label: "Dubai Hills" },
+    "Business Bay":       { x: 222, y: 158, label: "Business Bay" },
+    "Downtown":           { x: 200, y: 135, label: "Downtown" },
+    "Dubai Marina":       { x: 70,  y: 178, label: "Dubai Marina" },
+    "JBR":                { x: 55,  y: 205, label: "JBR" },
+    "Palm Jumeirah":      { x: 35,  y: 232, label: "Palm Jumeirah" },
+    "Dubai South":        { x: 140, y: 258, label: "Dubai South" },
+    "DIP":                { x: 105, y: 228, label: "DIP" },
+    "Al Furjan":          { x: 88,  y: 198, label: "Al Furjan" },
+    "MBR City":           { x: 232, y: 118, label: "MBR City" },
+    "International City": { x: 322, y: 78,  label: "Int'l City" },
+    "Al Jaddaf":          { x: 238, y: 168, label: "Al Jaddaf" },
+    "DXB":                { x: 300, y: 118, label: "DXB Airport" },
+    "DWC":                { x: 155, y: 272, label: "DWC Airport" }
+  };
+  // alias so TO-column names resolve to the same coordinate set
+  const TO_ALIAS = { "Marina": "Dubai Marina" };
+
+  const fromSelect = document.getElementById('from');
+  const toSelect = document.getElementById('to');
+  const flapRow = document.getElementById('flapRow');
+  const clientLine = document.getElementById('clientLine');
+  const routeText = document.getElementById('routeText');
+  const mapSvg = document.getElementById('mapSvg');
+
+  Object.keys(MATRIX).forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc; opt.textContent = loc;
+    fromSelect.appendChild(opt);
+  });
+  TO_LOCATIONS.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc; opt.textContent = loc;
+    toSelect.appendChild(opt);
+  });
+
+  fromSelect.value = "Downtown";
+  toSelect.value = "Marina";
+
+  function renderFlaps(text){
+    flapRow.innerHTML = "";
+    text.split("").forEach((ch, i) => {
+      const tile = document.createElement('div');
+      tile.className = 'flap';
+      tile.textContent = ch === " " ? "\u00A0" : ch;
+      tile.style.animationDelay = (i * 0.03) + "s";
+      flapRow.appendChild(tile);
+    });
+  }
+
+  function cssId(key){ return key.replace(/[^a-zA-Z0-9]/g,''); }
+
+  function buildMap(){
+    let markup = `
+      <path d="M0,300 L0,240 Q60,190 130,210 Q220,235 280,180 Q340,130 400,150 L400,300 Z"
+            fill="#DCEFFF" opacity="0.6"/>
+      <path d="M0,300 L0,260 Q80,230 160,240 Q260,255 320,210 Q370,180 400,190 L400,300 Z"
+            fill="#C3E3FA" opacity="0.5"/>
+    `;
+    Object.keys(COORDS).forEach(key => {
+      const c = COORDS[key];
+      markup += `<circle class="pin" id="pin-${cssId(key)}" cx="${c.x}" cy="${c.y}" r="3.4"></circle>`;
+      markup += `<text class="pin-label" id="label-${cssId(key)}" x="${c.x + 6}" y="${c.y + 3}">${c.label}</text>`;
+    });
+    markup += `<path class="route-path" id="routePath" d="" style="opacity:0"></path>`;
+    mapSvg.innerHTML = markup;
+  }
+
+  function resolveCoordKey(name){
+    return TO_ALIAS[name] || name;
+  }
+
+  function updateMap(fromKey, toKey){
+    Object.keys(COORDS).forEach(key => {
+      const id = cssId(key);
+      document.getElementById('pin-' + id).setAttribute('class', 'pin');
+      document.getElementById('label-' + id).setAttribute('class', 'pin-label');
+    });
+
+    const fResolved = resolveCoordKey(fromKey);
+    const tResolved = resolveCoordKey(toKey);
+    const fCoord = COORDS[fResolved];
+    const tCoord = COORDS[tResolved];
+    const routePath = document.getElementById('routePath');
+
+    if(fCoord){
+      const fId = cssId(fResolved);
+      document.getElementById('pin-' + fId).setAttribute('class', 'pin active endpoint');
+      document.getElementById('label-' + fId).setAttribute('class', 'pin-label active');
+    }
+    if(tCoord){
+      const tId = cssId(tResolved);
+      document.getElementById('pin-' + tId).setAttribute('class', 'pin active endpoint');
+      document.getElementById('label-' + tId).setAttribute('class', 'pin-label active');
+    }
+
+    if(fCoord && tCoord && fResolved !== tResolved){
+      const mx = (fCoord.x + tCoord.x) / 2;
+      const my = (fCoord.y + tCoord.y) / 2 - 18;
+      routePath.setAttribute('d', `M${fCoord.x},${fCoord.y} Q${mx},${my} ${tCoord.x},${tCoord.y}`);
+      routePath.style.opacity = 1;
+    } else {
+      routePath.style.opacity = 0;
+    }
+  }
+
+  function update(){
+    const from = fromSelect.value;
+    const to = toSelect.value;
+    const idx = TO_LOCATIONS.indexOf(to);
+    const range = MATRIX[from] ? MATRIX[from][idx] : null;
+
+    routeText.textContent = from.toUpperCase() + "  ·  " + to.toUpperCase();
+    updateMap(from, to);
+
+    if(!range || range === "—"){
+      renderFlaps("N/A");
+      clientLine.textContent = "No same-route figure on file for this pair. Please check Google Maps or RTA for live timing before advising a client.";
+      return;
+    }
+
+    renderFlaps(range.toUpperCase());
+    clientLine.textContent = `"Approximately ${range.replace('m',' minutes')} in normal traffic. During peak hours, it may take longer."`;
+  }
+
+  buildMap();
+  fromSelect.addEventListener('change', update);
+  toSelect.addEventListener('change', update);
+  update();
+</script>
+
+</body>
+</html>
